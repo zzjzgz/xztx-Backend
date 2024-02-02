@@ -1,6 +1,8 @@
 package xyz.zzj.springbootxztxbackend.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +38,8 @@ import static xyz.zzj.springbootxztxbackend.constant.UserConstant.USER_LOGIN_STA
 public class UserController {
 
     @Resource
-    UserService userService;
+    private UserService userService;
+
 
     //注册
     @PostMapping("/register")
@@ -171,5 +174,13 @@ public class UserController {
         return ResultUtils.success(userList);
     }
 
+    //主页推荐
+    @GetMapping("/recommend")
+    public BaseResponse<IPage<User>> recommendUser(int pageSize, int pageNum,HttpServletRequest request){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        //分页
+        Page<User> userList = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        return ResultUtils.success(userList);
+    }
 }
 

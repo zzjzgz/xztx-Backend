@@ -156,6 +156,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         safatyUser.setUserStatus(originUser.getUserStatus());
         safatyUser.setCreateTime(originUser.getCreateTime());
         safatyUser.setTags(originUser.getTags());
+        safatyUser.setUserProfile(originUser.getUserProfile());
         return safatyUser;
     }
 
