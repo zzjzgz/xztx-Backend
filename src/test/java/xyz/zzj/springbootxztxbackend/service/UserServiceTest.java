@@ -1,7 +1,5 @@
 package xyz.zzj.springbootxztxbackend.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,44 +17,21 @@ class UserServiceTest {
     @Resource
     private UserService userService;
 
-    private ExecutorService executorService = new ThreadPoolExecutor(23, 1000, 10000, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000));
+    private ExecutorService executorService = new ThreadPoolExecutor(40, 1000, 1, TimeUnit.MINUTES, new ArrayBlockingQueue<>(2500));
 
     @Test
-    void testAddUser() throws JsonProcessingException {
-        User user = new User();
-        user.setUsername("zzjzzj");
-        user.setAvatarUrl("http://xxxxxx");
-        user.setGender(0);
-        user.setUserAccount("zzjzzj");
-        user.setUserPassword("12345678");
-        user.setPhone("123");
-        user.setEmail("123");
-        String str = "java";
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(str);
-        user.setTags(jsonString);
-        userService.save(user);
-    }
-
-    /**
-     * 批量插入
-     */
-    @Test
-    void searchTags() {
-        final int INSERT_NUM = 10000000;
-        //分十组
-        int num = 5000;
+    void testAddUser(){
+        long start = System.currentTimeMillis();
+        int num = 5000;  //一次批量插入的数量
         int j = 0;
-        List<CompletableFuture<Void>> futureList = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            //建立一个线程安全的list
+        for (int i = 0;i<20;i++){
             List<User> userList = new ArrayList<>();
             while (true){
                 j++;
                 User user = new User();
                 user.setUserProfile("我是假数据");
                 user.setUsername("假数据");
-                user.setAvatarUrl("https://zzj-img.oss-cn-hangzhou.aliyuncs.com/2024/02.jpg");
+                user.setAvatarUrl("https://xxxxxx.jpg");
                 user.setGender(0);
                 user.setUserAccount("jiazzj");
                 user.setUserPassword("2970a1691c8ef07f40ddbe6f7b18662f");
@@ -73,12 +48,57 @@ class UserServiceTest {
                     break;
                 }
             }
+            userService.saveBatch(userList,num);
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("用时:"+(end - start));
+    }
+
+    /**
+     * 批量插入
+     */
+    @Test
+    void searchTags() {
+        long start = System.currentTimeMillis();
+        int num = 2500;
+        int j = 0;
+        List<CompletableFuture<Void>> futureList = new ArrayList<>();
+        for (int i = 0; i < 40; i++) {
+            List<User> userList = new ArrayList<>();
+            while (true){
+                j++;
+                User user = new User();
+                user.setUserProfile("我是假数据");
+                user.setUsername("假数据");
+                user.setAvatarUrl("https://xxxx.jpg");
+                user.setGender(0);
+                user.setUserAccount("jiazzj");
+                user.setUserPassword("2970a1691c8ef07f40ddbe6f7b18662f");
+                user.setPhone("123456789");
+                user.setEmail("123456@qq.com");
+                user.setUserStatus(0);
+                user.setUserRole(0);
+                String[] str = new String[]{"java","考研"};
+                Gson gson = new Gson();
+                String json = gson.toJson(str);
+                user.setTags(json);
+                userList.add(user);
+                if (j % num == 0){
+                    break;
+                }
+            }
+            //定义一个异步任务进行批量插入
             CompletableFuture<Void> future = CompletableFuture.runAsync(()->{
                 System.out.println("线程名" + Thread.currentThread().getName());
                 userService.saveBatch(userList, num);
             },executorService);
+            //每个任务执行完,放人list列表里
             futureList.add(future);
         }
+        //等待线程全部执行完后执行后续操作
         CompletableFuture.allOf(futureList.toArray(new CompletableFuture[]{})).join();
+
+        long end = System.currentTimeMillis();
+        System.out.println("用时:"+(end - start));
     }
 }

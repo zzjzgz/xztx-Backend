@@ -19,8 +19,6 @@ spring:
     port: 6379
     # 密码，密码用双引号括起来，血与泪的排查（重置服务器的代价）
     password: "0806"
-    # 连接超时时
-    timeout: 5200
     lettuce:
       pool:
         # 连接池中的最小空闲连接
@@ -44,7 +42,7 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       logic-delete-field: flag # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)

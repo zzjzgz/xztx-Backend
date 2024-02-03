@@ -207,11 +207,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public int updateUser(User user,User loginUser) {
-        Long userId = user.getId();
-        if (userId == null){
+        long userId = user.getId();
+        if (userId <= 0){
             throw new BusinessException(ErrorCode.LOGIN_ERROR);
         }
-        if (!userId.equals(loginUser.getId())){
+        if (userId != loginUser.getId()){
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR,"您不是本人和管理员无法修改");
         }
         User oldUser = userMapper.selectById(userId);
@@ -224,8 +224,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public int AdminUpdateUser(User user) {
         //判断id是否为空
-        Long userId = user.getId();
-        if (userId == null){
+        long userId = user.getId();
+        if (userId <= 0){
             throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
         }
         User oldUser = userMapper.selectById(userId);

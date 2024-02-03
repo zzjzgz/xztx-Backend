@@ -67,7 +67,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
-            <version>2.6.13</version>
         </dependency>
 <!--        redis操作session-->
         <!-- https://mvnrepository.com/artifact/org.springframework.session/spring-session-data-redis -->

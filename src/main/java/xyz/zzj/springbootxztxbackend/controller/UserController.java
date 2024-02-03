@@ -1,9 +1,11 @@
 package xyz.zzj.springbootxztxbackend.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import xyz.zzj.springbootxztxbackend.connon.BaseResponse;
@@ -18,8 +20,10 @@ import xyz.zzj.springbootxztxbackend.service.UserService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static xyz.zzj.springbootxztxbackend.constant.UserConstant.RECOMMEND_KEY_PREFIX;
 import static xyz.zzj.springbootxztxbackend.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
@@ -35,10 +39,13 @@ import static xyz.zzj.springbootxztxbackend.constant.UserConstant.USER_LOGIN_STA
 @RequestMapping("/user")
 //这个是线上用于跨域的，本地请注释其注解
 @CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
+@Slf4j
 public class UserController {
 
     @Resource
     private UserService userService;
+    @Resource
+    private RedisTemplate<String,Object> redisTemplate;
 
 
     //注册
@@ -176,11 +183,27 @@ public class UserController {
 
     //主页推荐
     @GetMapping("/recommend")
-    public BaseResponse<IPage<User>> recommendUser(int pageSize, int pageNum,HttpServletRequest request){
+    public BaseResponse<Page<User>> recommendUser(int pageSize, int pageNum,HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        //1、判断缓存是否存在
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        String key = RECOMMEND_KEY_PREFIX + loginUser.getId();
+        Page<User> userPage = (Page<User>) valueOperations.get(key);
+        //2、缓存存在返回
+        if (userPage != null){
+            return ResultUtils.success(userPage);
+        }
+        //3、缓存中不存在，查数据库
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         //分页
-        Page<User> userList = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
-        return ResultUtils.success(userList);
+        userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        //4、不存在，写入缓存
+        try {
+            valueOperations.set(key,userPage,30, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("redis set error",e);
+        }
+        return ResultUtils.success(userPage);
     }
 }
 

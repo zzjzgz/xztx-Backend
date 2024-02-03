@@ -13,11 +13,13 @@ import java.util.Date;
 @TableName(value ="user")
 @Data
 public class User implements Serializable {
+
+
     /**
      * id
      */
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private long id;
 
     /**
      * 个人简介
@@ -90,6 +92,6 @@ public class User implements Serializable {
      */
     private String tags;
 
-    @TableField(exist = false)
+//    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

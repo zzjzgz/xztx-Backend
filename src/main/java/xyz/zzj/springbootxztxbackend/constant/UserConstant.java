@@ -28,5 +28,10 @@ public interface UserConstant {
      */
     int ADMIN_ROLE = 1;
 
+    /**
+     * 主页信息key
+     */
+    String RECOMMEND_KEY_PREFIX = "xztx:user:recommend:";
+
 }
 
