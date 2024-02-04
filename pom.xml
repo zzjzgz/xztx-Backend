@@ -42,6 +42,11 @@
             <version>2.8.9</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -76,7 +81,12 @@
             <version>2.6.3</version>
         </dependency>
 
-
+<!--        https://github.com/redisson/redisson?tab=readme-ov-file#quick-start-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.26.0</version>
+        </dependency>
 
         <!--        knife4j-->
         <dependency>

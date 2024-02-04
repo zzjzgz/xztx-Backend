@@ -32,6 +32,10 @@ public interface UserConstant {
      * 主页信息key
      */
     String RECOMMEND_KEY_PREFIX = "xztx:user:recommend:";
+    /**
+     * 预加载key
+     */
+    String PRECACHE_KEY_PREFIX = "xztx:precache:doCache:";
 
 }
 
