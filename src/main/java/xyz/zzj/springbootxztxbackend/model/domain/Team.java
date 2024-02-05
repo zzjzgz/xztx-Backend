@@ -17,12 +17,12 @@ public class Team implements Serializable {
      * 
      */
     @TableId(type = IdType.AUTO)
-    private long id;
+    private Long id;
 
     /**
      * 队伍名称
      */
-    private String teamUser;
+    private String teamName;
 
     /**
      * 队伍描述

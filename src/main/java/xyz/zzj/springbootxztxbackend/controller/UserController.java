@@ -98,7 +98,10 @@ public class UserController {
         if (currentUser == null){
             throw new BusinessException(ErrorCode.LOGIN_ERROR,"用户未登录");
         }
-        long userId = currentUser.getId();
+        Long userId = currentUser.getId();
+        if (userId == null){
+            throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
+        }
         User user = userService.getById(userId);
         User safetyUser = userService.getSafetyUser(user);
         return ResultUtils.success(safetyUser);

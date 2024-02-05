@@ -6,7 +6,7 @@
 
     <resultMap id="BaseResultMap" type="xyz.zzj.springbootxztxbackend.model.domain.Team">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="teamUser" column="teamUser" jdbcType="VARCHAR"/>
+            <result property="teamName" column="teamName" jdbcType="VARCHAR"/>
             <result property="teamDescription" column="teamDescription" jdbcType="VARCHAR"/>
             <result property="maxNum" column="maxNum" jdbcType="INTEGER"/>
             <result property="expireTime" column="expireTime" jdbcType="TIMESTAMP"/>
@@ -19,7 +19,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,teamUser,teamDescription,
+        id,teamName,teamDescription,
         maxNum,expireTime,userId,
         createTime,updateTime,isDelete,
         status,password

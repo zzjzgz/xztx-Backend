@@ -17,17 +17,17 @@ public class UserTeam implements Serializable {
      * 
      */
     @TableId(type = IdType.AUTO)
-    private long id;
+    private Long id;
 
     /**
      * 用户id
      */
-    private long userId;
+    private Long userId;
 
     /**
      * 队伍id
      */
-    private long teamId;
+    private Long teamId;
 
     /**
      * 用户加入时间
