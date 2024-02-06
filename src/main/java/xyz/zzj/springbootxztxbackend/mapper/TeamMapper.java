@@ -1,7 +1,7 @@
 package xyz.zzj.springbootxztxbackend.mapper;
 
-import xyz.zzj.springbootxztxbackend.model.domain.Team;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import xyz.zzj.springbootxztxbackend.model.domain.Team;
 
 /**
 * @author zengz

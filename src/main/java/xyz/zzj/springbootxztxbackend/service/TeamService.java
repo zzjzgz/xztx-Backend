@@ -6,6 +6,7 @@ import xyz.zzj.springbootxztxbackend.model.domain.Team;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.request.TeamQuitRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamUpdateRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
 
@@ -20,7 +21,7 @@ public interface TeamService extends IService<Team> {
 
     long addTeam(Team team, User loginUser);
 
-    boolean deleteTeam(long id);
+    boolean deleteTeam(long id,User loginUser);
 
 
     boolean updateTeam(TeamUpdateRequest teamUpdateRequest, User longinUser);
@@ -30,4 +31,6 @@ public interface TeamService extends IService<Team> {
     Page<Team> listTeamPage(TeamQueryDTO teamQueryDTO);
 
     boolean joinTeam(TeamJoinRequest teamJoinRequest,User loginUser);
+
+    boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
 }

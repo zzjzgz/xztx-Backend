@@ -63,4 +63,9 @@ public class TeamUserVO implements Serializable {
      */
     private String teamAvatarUrl;
 
+    /**
+     * 创建人用户信息
+     */
+    private UserVO createUser;
+
 }

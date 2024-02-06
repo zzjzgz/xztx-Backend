@@ -1,7 +1,7 @@
 package xyz.zzj.springbootxztxbackend.mapper;
 
-import xyz.zzj.springbootxztxbackend.model.domain.UserTeam;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import xyz.zzj.springbootxztxbackend.model.domain.UserTeam;
 
 /**
 * @author zengz
@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity xyz.zzj.springbootxztxbackend.model.domain.UserTeam
 */
 public interface UserTeamMapper extends BaseMapper<UserTeam> {
+
 
 }
 

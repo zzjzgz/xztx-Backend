@@ -13,6 +13,7 @@ import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamAddRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.request.TeamQuitRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamUpdateRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
 import xyz.zzj.springbootxztxbackend.service.TeamService;
@@ -61,17 +62,21 @@ public class TeamController {
     }
 
     /**
-     * 删除队伍
+     * 解散队伍
      * @param id
      * @return
      */
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deleteTeam(long id){
+    public BaseResponse<Boolean> deleteTeam(@RequestBody long id,HttpServletRequest request){
         if (id <= 0){
             throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
         }
-        boolean flag = teamService.deleteTeam(id);
-        return ResultUtils.success(flag);
+        User loginUser = userService.getLoginUser(request);
+        boolean flag = teamService.deleteTeam(id,loginUser);
+        if (!flag){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return ResultUtils.success(true);
     }
 
     /**
@@ -89,7 +94,10 @@ public class TeamController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean flag = teamService.updateTeam(teamUpdateRequest,loginUser);
-        return ResultUtils.success(flag);
+        if (!flag){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return ResultUtils.success(true);
     }
 
     /**
@@ -146,7 +154,30 @@ public class TeamController {
         }
         User loginUser = userService.getLoginUser(request);
         boolean flag = teamService.joinTeam(teamJoinRequest,loginUser);
-        return ResultUtils.success(flag);
+        if (!flag){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return ResultUtils.success(true);
     }
+
+    /**
+     * 用户退出队伍
+     * @param teamQuitRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/quit")
+    public BaseResponse<Boolean> quitTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request){
+        if (teamQuitRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean flag = teamService.quitTeam(teamQuitRequest,loginUser);
+        if (!flag){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return ResultUtils.success(true);
+    }
+
 
 }
