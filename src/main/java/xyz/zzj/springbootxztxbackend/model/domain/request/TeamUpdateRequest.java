@@ -7,16 +7,19 @@ import java.util.Date;
 
 /**
  * @BelongsPackage: xyz.zzj.springbootxztxbackend.model.domain.request
- * @ClassName: TeamAddRequest
+ * @ClassName: TeamUpdateRequest
  * @Author: zengz
- * @CreateTime: 2024/2/5 20:16
- * @Description: 队伍新增请求体
+ * @CreateTime: 2024/2/6 12:47
+ * @Description: TODO 描述类的功能
  * @Version: 1.0
  */
-@Data
-public class TeamAddRequest implements Serializable {
 
-    private static final long serialVersionUID = -914015194055759414L;
+@Data
+public class TeamUpdateRequest implements Serializable {
+
+    private static final long serialVersionUID = -343116751069062892L;
+    private Long id;
+
     /**
      * 队伍名称
      */
@@ -26,11 +29,6 @@ public class TeamAddRequest implements Serializable {
      * 队伍描述
      */
     private String teamDescription;
-
-    /**
-     * 最大人数
-     */
-    private Integer maxNum;
 
     /**
      * 过期时间

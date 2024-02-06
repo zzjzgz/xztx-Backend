@@ -1,22 +1,25 @@
-package xyz.zzj.springbootxztxbackend.model.domain;
+package xyz.zzj.springbootxztxbackend.model.domain.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
- * @TableName team
+ * @BelongsPackage: xyz.zzj.springbootxztxbackend.model.domain.vo
+ * @ClassName: teamUserVO
+ * @Author: zengz
+ * @CreateTime: 2024/2/6 9:58
+ * @Description: 队伍和用户信息的封装类
+ * @Version: 1.0
  */
-@TableName(value ="team")
+
 @Data
-public class Team implements Serializable {
+public class TeamUserVO implements Serializable {
+    private static final long serialVersionUID = -5278008598557169798L;
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -49,32 +52,15 @@ public class Team implements Serializable {
      */
     private Date createTime;
 
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
 
     /**
-     * 是否删除
-     */
-    @TableLogic
-    private Integer isDelete;
-
-    /**
-     * 0-公开，1-私有，3-加密
+     * 0-公开，1-私有，2-加密
      */
     private Integer status;
 
     /**
      * 队伍密码
      */
-    private String password;
-
-    /**
-     * 队伍头像
-     */
     private String teamAvatarUrl;
 
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }

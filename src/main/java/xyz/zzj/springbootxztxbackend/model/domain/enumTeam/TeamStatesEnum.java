@@ -15,7 +15,7 @@ package xyz.zzj.springbootxztxbackend.model.domain.enumTeam;
 public enum TeamStatesEnum {
     PUBLIC(0,"公开"),
     PRIVATE(1,"私有"),
-    SECRET(3,"加密");
+    SECRET(2,"加密");
 
     /**
      * 状态

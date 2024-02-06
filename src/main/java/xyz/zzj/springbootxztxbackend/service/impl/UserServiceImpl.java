@@ -25,8 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static xyz.zzj.springbootxztxbackend.constant.UserConstant.ADMIN_ROLE;
-import static xyz.zzj.springbootxztxbackend.constant.UserConstant.USER_LOGIN_STATE;
+import static xyz.zzj.springbootxztxbackend.constant.UserConstant.*;
 
 /**
  * @author zeng
@@ -40,10 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     UserMapper userMapper;
 
-    /**
-     * 对密码进行加盐，混淆
-     */
-    private static final String S_ALT = "zzj";
+
 
 
 

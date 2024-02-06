@@ -16,12 +16,13 @@
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="teamAvatarUrl" column="teamAvatarUrl" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,teamName,teamDescription,
         maxNum,expireTime,userId,
         createTime,updateTime,isDelete,
-        status,password
+        status,password,teamAvatarUrl
     </sql>
 </mapper>

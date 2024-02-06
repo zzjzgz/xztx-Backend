@@ -12,6 +12,9 @@ import xyz.zzj.springbootxztxbackend.model.domain.Team;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamAddRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.request.TeamUpdateRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
 import xyz.zzj.springbootxztxbackend.service.TeamService;
 import xyz.zzj.springbootxztxbackend.service.UserService;
 
@@ -73,18 +76,19 @@ public class TeamController {
 
     /**
      * 更新队伍
-     * @param team
+     * @param teamUpdateRequest
      * @return
      */
     @PostMapping("/update")
-    public BaseResponse<Boolean> updateTeam(@RequestBody Team team){
-        if (team == null){
+    public BaseResponse<Boolean> updateTeam(@RequestBody TeamUpdateRequest teamUpdateRequest,HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        if (teamUpdateRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        if (team.getId() == null){
+        if (teamUpdateRequest.getId() == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean flag = teamService.updateTeam(team);
+        boolean flag = teamService.updateTeam(teamUpdateRequest,loginUser);
         return ResultUtils.success(flag);
     }
 
@@ -111,11 +115,8 @@ public class TeamController {
      * @return
      */
     @GetMapping("/list")
-    public BaseResponse<List<Team>> listTeam(TeamQueryDTO teamQueryDTO){
-        if (teamQueryDTO == null){
-            throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
-        }
-        List<Team> list = teamService.listTeam(teamQueryDTO);
+    public BaseResponse<List<TeamUserVO>> listTeam(TeamQueryDTO teamQueryDTO){
+        List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
         return ResultUtils.success(list);
     }
 
@@ -131,6 +132,21 @@ public class TeamController {
         }
         Page<Team> listTeamPage = teamService.listTeamPage(teamQueryDTO);
         return ResultUtils.success(listTeamPage);
+    }
+
+    /**
+     * 加入队伍
+     * @param teamJoinRequest
+     * @return
+     */
+    @PostMapping("/join")
+    public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest,HttpServletRequest request){
+        if (teamJoinRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean flag = teamService.joinTeam(teamJoinRequest,loginUser);
+        return ResultUtils.success(flag);
     }
 
 }

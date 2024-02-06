@@ -5,7 +5,7 @@ package xyz.zzj.springbootxztxbackend.constant;
  * @BelongsPackage: xyz.zzj.springbootusercenter.constant
  * @Author: zengzhaojun
  * @CreateTime: 2024-01-09  19:23
- * @Description: TODO
+ * @Description: 用户常量
  * @Version: 1.0
  *
  * 用户常量
@@ -36,6 +36,11 @@ public interface UserConstant {
      * 预加载key
      */
     String PRECACHE_KEY_PREFIX = "xztx:precache:doCache:";
+
+    /**
+     * 对密码进行加盐，混淆
+     */
+   String S_ALT = "zzj";
 
 }
 

@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.zzj.springbootxztxbackend.model.domain.Team;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
+import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.request.TeamUpdateRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
 
 import java.util.List;
 
@@ -19,9 +22,12 @@ public interface TeamService extends IService<Team> {
 
     boolean deleteTeam(long id);
 
-    boolean updateTeam(Team team);
 
-    List<Team> listTeam(TeamQueryDTO teamQueryDTO);
+    boolean updateTeam(TeamUpdateRequest teamUpdateRequest, User longinUser);
+
+    List<TeamUserVO> listTeam(TeamQueryDTO teamQueryDTO);
 
     Page<Team> listTeamPage(TeamQueryDTO teamQueryDTO);
+
+    boolean joinTeam(TeamJoinRequest teamJoinRequest,User loginUser);
 }

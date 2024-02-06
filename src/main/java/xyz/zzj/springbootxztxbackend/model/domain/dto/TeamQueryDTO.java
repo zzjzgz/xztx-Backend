@@ -23,7 +23,7 @@ public class TeamQueryDTO extends PageRequest {
     /**
      * 队伍名称
      */
-    private String teamUser;
+    private String teamName;
 
     /**
      * 队伍描述
