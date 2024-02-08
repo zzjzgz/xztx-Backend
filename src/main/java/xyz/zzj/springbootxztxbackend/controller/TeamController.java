@@ -1,5 +1,6 @@
 package xyz.zzj.springbootxztxbackend.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -10,25 +11,26 @@ import xyz.zzj.springbootxztxbackend.connon.ResultUtils;
 import xyz.zzj.springbootxztxbackend.exception.BusinessException;
 import xyz.zzj.springbootxztxbackend.model.domain.Team;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
+import xyz.zzj.springbootxztxbackend.model.domain.UserTeam;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
-import xyz.zzj.springbootxztxbackend.model.domain.request.TeamAddRequest;
-import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
-import xyz.zzj.springbootxztxbackend.model.domain.request.TeamQuitRequest;
-import xyz.zzj.springbootxztxbackend.model.domain.request.TeamUpdateRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.request.*;
 import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
 import xyz.zzj.springbootxztxbackend.service.TeamService;
 import xyz.zzj.springbootxztxbackend.service.UserService;
+import xyz.zzj.springbootxztxbackend.service.UserTeamService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @BelongsPackage: xyz.zzj.springbootxztxbackend.controller
  * @ClassName: TeamController
  * @Author: zengz
  * @CreateTime: 2024/2/5 10:20
- * @Description: TODO 描述类的功能
+ * @Description: 控制类
  * @Version: 1.0
  */
 
@@ -43,6 +45,8 @@ public class TeamController {
     private TeamService teamService;
     @Resource
     private UserService userService;
+    @Resource
+    private UserTeamService userTeamService;
 
     /**
      * 增加队伍
@@ -63,16 +67,16 @@ public class TeamController {
 
     /**
      * 解散队伍
-     * @param id
+     * @param deleteRequest
      * @return
      */
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deleteTeam(@RequestBody long id,HttpServletRequest request){
-        if (id <= 0){
+    public BaseResponse<Boolean> deleteTeam(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request){
+        if (deleteRequest == null || deleteRequest.getId() <= 0){
             throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        boolean flag = teamService.deleteTeam(id,loginUser);
+        boolean flag = teamService.deleteTeam(deleteRequest.getId(),loginUser);
         if (!flag){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -124,6 +128,9 @@ public class TeamController {
      */
     @GetMapping("/list")
     public BaseResponse<List<TeamUserVO>> listTeam(TeamQueryDTO teamQueryDTO){
+        if (teamQueryDTO == null){
+            throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
+        }
         List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
         return ResultUtils.success(list);
     }
@@ -180,4 +187,41 @@ public class TeamController {
     }
 
 
+    /**
+     * 获取我创建的队伍
+     * @param teamQueryDTO 查询全部的dto
+     * @return
+     */
+    @GetMapping("/list/myCreate")
+    public BaseResponse<List<TeamUserVO>> getUserCreateTeam(TeamQueryDTO teamQueryDTO,HttpServletRequest request){
+        if (teamQueryDTO == null){
+            throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        //绑定当前用户id
+        teamQueryDTO.setUserId(loginUser.getId());
+        List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
+        return ResultUtils.success(list);
+    }
+
+    /**
+     * 获取我加入的队伍
+     * @param teamQueryDTO 查询全部的dto
+     * @return
+     */
+    @GetMapping("/list/myJoin")
+    public BaseResponse<List<TeamUserVO>> getUserJoinTeam(TeamQueryDTO teamQueryDTO,HttpServletRequest request){
+        if (teamQueryDTO == null){
+            throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId",loginUser.getId());
+        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+        System.out.println(userTeamList);
+        List<Long> listId = new ArrayList<>(userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId)).keySet());
+        teamQueryDTO.setListId(listId);
+        List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
+        return ResultUtils.success(list);
+    }
 }

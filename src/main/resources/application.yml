@@ -11,7 +11,9 @@ spring:
     url: jdbc:mysql://localhost:3306/xztx?serverTimezone=UTC
     username: root
     password: zzj0806
-# redis 配置
+  jackson:
+    time-zone: GMT+8
+  # redis 配置
   redis:
     # 地址
     host: xxxxx

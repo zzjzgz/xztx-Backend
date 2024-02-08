@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import xyz.zzj.springbootxztxbackend.connon.PageRequest;
 
+import java.util.List;
+
 /**
  * @BelongsPackage: xyz.zzj.springbootxztxbackend.model.domain.dto
  * @ClassName: TeamQueryDTO
@@ -19,6 +21,11 @@ public class TeamQueryDTO extends PageRequest {
      * id
      */
     private long id;
+
+    /**
+     * 列表id
+     */
+    private List<Long> listId;
 
     /**
      * 队伍名称
@@ -45,4 +52,8 @@ public class TeamQueryDTO extends PageRequest {
      * 0-公开，1-私有，3-加密
      */
     private Integer status;
+    /**
+     * 搜索条件
+     */
+    private String searchText;
 }

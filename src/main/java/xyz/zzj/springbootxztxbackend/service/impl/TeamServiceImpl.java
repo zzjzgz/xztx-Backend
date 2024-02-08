@@ -102,13 +102,13 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         if (new Date().after(expireTime)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"过期时间不对哦。");
         }
-//        - 用户最多创建5个队伍
+//        - 用户最多创建和加入5个队伍
         //todo 可能有bug，可能会有100+创建
-        QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId",loginUser.getId());
-        long count = this.count(queryWrapper);
+        long count = userTeamService.count(queryWrapper);
         if (count >= 5){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"最多创建5个队伍");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"最多创建并加入5个队伍");
         }
         team.setId(null);
 //        - 插入队伍信息到队伍表
@@ -211,6 +211,11 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
             if (id > 0) {
                 queryWrapper.eq("id", id);
             }
+            //根据列表id查询
+            List<Long> listId = teamQueryDTO.getListId();
+            if (CollectionUtils.isNotEmpty(listId)){
+                queryWrapper.in("id",listId);
+            }
             //根据队伍名称查询
             String teamName = teamQueryDTO.getTeamName();
             if (StringUtils.isNotBlank(teamName)) {
@@ -220,6 +225,11 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
             String teamDescription = teamQueryDTO.getTeamDescription();
             if (StringUtils.isNotBlank(teamDescription)) {
                 queryWrapper.like("teamDescription", teamDescription);
+            }
+            //根据搜索框搜索
+            String searchText = teamQueryDTO.getSearchText();
+            if (StringUtils.isNotBlank(searchText)) {
+                queryWrapper.and(qw -> qw.like("teamName", searchText).or().like("teamDescription", searchText));
             }
             //根据最大人数查询
             Integer maxNum = teamQueryDTO.getMaxNum();
@@ -314,7 +324,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId",userId);
         long hasJoin = userTeamService.count(queryWrapper);
-        if (hasJoin > 5){
+        if (hasJoin >= 5){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"最多创建和加入5个队伍");
         }
         //不能加入同一个队伍
