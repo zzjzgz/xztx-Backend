@@ -15,6 +15,7 @@ import xyz.zzj.springbootxztxbackend.exception.BusinessException;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.request.UserLoginRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.UserRegisterRequest;
+import xyz.zzj.springbootxztxbackend.model.domain.vo.UserVO;
 import xyz.zzj.springbootxztxbackend.service.UserService;
 
 import javax.annotation.Resource;
@@ -198,6 +199,7 @@ public class UserController {
         }
         //3、缓存中不存在，查数据库
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.ne("id",loginUser.getId());
         //分页
         userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
         //4、不存在，写入缓存
@@ -208,5 +210,22 @@ public class UserController {
         }
         return ResultUtils.success(userPage);
     }
+
+    @GetMapping("/match")
+    public BaseResponse<List<UserVO>> matchUser(long num,HttpServletRequest request){
+        if (num <= 0 || num>=20){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<UserVO> userVOList = userService.matchUsers(num, loginUser);
+        if (CollectionUtils.isEmpty(userVOList)){
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        return ResultUtils.success(userVOList);
+    }
+
 }
 

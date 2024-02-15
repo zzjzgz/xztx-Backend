@@ -2,6 +2,7 @@ package xyz.zzj.springbootxztxbackend.service;
 
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import xyz.zzj.springbootxztxbackend.model.domain.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -89,4 +90,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean isAdmin(User longinUser);
+
+    /**
+     * 匹配用户
+     * @param num
+     * @param loginUser
+     * @return
+     */
+    List<UserVO> matchUsers(long num, User loginUser);
 }

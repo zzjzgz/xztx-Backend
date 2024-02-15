@@ -23,6 +23,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -127,12 +128,28 @@ public class TeamController {
      * @return
      */
     @GetMapping("/list")
-    public BaseResponse<List<TeamUserVO>> listTeam(TeamQueryDTO teamQueryDTO){
+    public BaseResponse<List<TeamUserVO>> listTeam(TeamQueryDTO teamQueryDTO,HttpServletRequest request){
         if (teamQueryDTO == null){
             throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
         }
-        List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
-        return ResultUtils.success(list);
+        List<TeamUserVO> teamList = teamService.listTeam(teamQueryDTO);
+        //判断当前用户是否以加入队伍
+        List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        try {
+            User loginUser = userService.getLoginUser(request);
+            queryWrapper.eq("userId",loginUser.getId());
+            queryWrapper.in("teamId",teamIdList);
+            //已加入的队伍
+            List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+            //已加入的队伍id集合
+            Set<Long> hasJoinTeamId = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toSet());
+            teamList.forEach(team ->{
+                boolean hasJoin = hasJoinTeamId.contains(team.getId());
+                team.setHasJoin(hasJoin);
+            });
+        }catch (Exception e){}
+        return ResultUtils.success(teamList);
     }
 
     /**
@@ -224,4 +241,5 @@ public class TeamController {
         List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
         return ResultUtils.success(list);
     }
+
 }

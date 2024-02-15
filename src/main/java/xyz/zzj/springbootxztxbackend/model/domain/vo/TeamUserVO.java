@@ -18,7 +18,7 @@ import java.util.Date;
 public class TeamUserVO implements Serializable {
     private static final long serialVersionUID = -5278008598557169798L;
     /**
-     * id
+     * 队伍id
      */
     private Long id;
 
@@ -43,7 +43,7 @@ public class TeamUserVO implements Serializable {
     private Date expireTime;
 
     /**
-     * 用户id（队伍id）
+     * 用户id（队长id）
      */
     private long userId;
 
@@ -67,5 +67,10 @@ public class TeamUserVO implements Serializable {
      * 创建人用户信息
      */
     private UserVO createUser;
+
+    /**
+     * 是否已加入
+     */
+    private boolean hasJoin;
 
 }
