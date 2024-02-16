@@ -35,6 +35,10 @@ public interface UserConstant {
     /**
      * 预加载key
      */
+    String JOIN_KEY_PREFIX = "xztx:team:joinTeam:";
+    /**
+     * 加入队伍
+     */
     String PRECACHE_KEY_PREFIX = "xztx:precache:doCache:";
 
     /**

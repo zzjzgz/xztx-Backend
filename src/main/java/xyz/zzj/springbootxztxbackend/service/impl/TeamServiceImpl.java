@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import static xyz.zzj.springbootxztxbackend.constant.UserConstant.JOIN_KEY_PREFIX;
 
 /**
 * @author zengz
@@ -48,6 +53,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     /**
      * 创建队伍
@@ -239,7 +247,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
             //根据队伍状态查询
             Integer status = teamQueryDTO.getStatus();
             if (status != null && status > -1) {
-                queryWrapper.eq("states", status);
+                queryWrapper.eq("status", status);
             }
             long userId = teamQueryDTO.getUserId();
             if (userId > 0){
@@ -291,6 +299,12 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         return teamPage;
     }
 
+    /**
+     * 加入队伍
+     * @param teamJoinRequest
+     * @param loginUser
+     * @return
+     */
     @Override
     public boolean joinTeam(TeamJoinRequest teamJoinRequest,User loginUser) {
         if (teamJoinRequest == null){
@@ -327,26 +341,54 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         if (hasJoin >= 5){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"最多创建和加入5个队伍");
         }
-        //不能加入同一个队伍
-        queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userId",userId);
-        queryWrapper.eq("teamId",teamId);
-        long count = userTeamService.count(queryWrapper);
-        if (count > 0){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"不能重复加入队伍");
+        //分布式锁
+        RLock lock = redissonClient.getLock(JOIN_KEY_PREFIX + userId);
+        try{
+            int i = 0;
+            while (true){
+                //重复抢锁10次，还抢不到直接退出
+                if (i > 10){
+                    return false;
+                }
+                i++;
+                if (lock.tryLock(0,-1, TimeUnit.MILLISECONDS)){
+                    //不能加入同一个队伍
+                    queryWrapper = new QueryWrapper<>();
+                    queryWrapper.eq("userId",userId);
+                    queryWrapper.eq("teamId",teamId);
+                    long count = userTeamService.count(queryWrapper);
+                    if (count > 0){
+                        throw new BusinessException(ErrorCode.PARAMS_ERROR,"不能重复加入队伍");
+                    }
+                    //队伍已加入的人数
+                    long joinPeople = userJoinNum(teamId);
+                    if (joinPeople >= team.getMaxNum()){
+                        throw new BusinessException(ErrorCode.PARAMS_ERROR,"队伍已满");
+                    }
+                    //修改队伍信息
+                    UserTeam userTeam = new UserTeam();
+                    userTeam.setUserId(userId);
+                    userTeam.setTeamId(teamId);
+                    userTeam.setJoinTime(new Date());
+                    return userTeamService.save(userTeam);
+                }
+            }
+        }catch (InterruptedException e){
+            return false;
+        }finally {
+            //释放自己的锁
+            if (lock.isHeldByCurrentThread()){
+                lock.unlock();
+            }
         }
-        //队伍已加入的人数
-        long joinPeople = userJoinNum(teamId);
-        if (joinPeople >= team.getMaxNum()){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"队伍已满");
-        }
-        UserTeam userTeam = new UserTeam();
-        userTeam.setUserId(userId);
-        userTeam.setTeamId(teamId);
-        userTeam.setJoinTime(new Date());
-        return userTeamService.save(userTeam);
     }
 
+    /**
+     * 退出队伍
+     * @param teamQuitRequest
+     * @param loginUser
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser) {

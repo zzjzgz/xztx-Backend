@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import xyz.zzj.springbootxztxbackend.connon.BaseResponse;
 import xyz.zzj.springbootxztxbackend.connon.ErrorCode;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/team")
-//这个是线上用于跨域的，本地请注释其注解
+//这个是线上用于跨域的，本地请注释其注解，//上线记得改服务器地址
 @CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
 @Slf4j
 public class TeamController {
@@ -235,7 +236,9 @@ public class TeamController {
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId",loginUser.getId());
         List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
-        System.out.println(userTeamList);
+        if (CollectionUtils.isEmpty(userTeamList)){
+            return ResultUtils.success(new ArrayList<>());
+        }
         List<Long> listId = new ArrayList<>(userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId)).keySet());
         teamQueryDTO.setListId(listId);
         List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);

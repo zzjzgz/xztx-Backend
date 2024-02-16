@@ -134,8 +134,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>xyz.zzj.springbootxztxbackend.springbootxztxbackendApplication</mainClass>
-                    <skip>true</skip>
+                    <mainClass>xyz.zzj.springbootxztxbackend.SpringbootXztxApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

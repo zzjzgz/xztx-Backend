@@ -38,7 +38,7 @@ import static xyz.zzj.springbootxztxbackend.constant.UserConstant.USER_LOGIN_STA
 
 @RestController
 @RequestMapping("/user")
-//这个是线上用于跨域的，本地请注释其注解
+//这个是线上用于跨域的，本地请注释其注解，上线记得改服务器地址
 @CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
 @Slf4j
 public class UserController {
