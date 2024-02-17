@@ -208,7 +208,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userId <= 0){
             throw new BusinessException(ErrorCode.LOGIN_ERROR);
         }
-        if (userId.equals(loginUser.getId())){
+        if (!userId.equals(loginUser.getId())){
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR,"您不是本人和管理员无法修改");
         }
         User oldUser = userMapper.selectById(userId);

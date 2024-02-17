@@ -19,6 +19,7 @@ import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
 import xyz.zzj.springbootxztxbackend.service.TeamService;
 import xyz.zzj.springbootxztxbackend.service.UserService;
 import xyz.zzj.springbootxztxbackend.service.UserTeamService;
+import xyz.zzj.springbootxztxbackend.utils.AliOssUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +50,7 @@ public class TeamController {
     private UserService userService;
     @Resource
     private UserTeamService userTeamService;
+
 
     /**
      * 增加队伍
@@ -244,5 +246,4 @@ public class TeamController {
         List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
         return ResultUtils.success(list);
     }
-
 }

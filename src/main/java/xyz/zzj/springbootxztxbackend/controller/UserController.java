@@ -105,6 +105,8 @@ public class UserController {
         }
         User user = userService.getById(userId);
         User safetyUser = userService.getSafetyUser(user);
+        //记录用户的登录态
+        httpServletRequest.getSession().setAttribute(USER_LOGIN_STATE,safetyUser);
         return ResultUtils.success(safetyUser);
     }
 
@@ -188,25 +190,31 @@ public class UserController {
     //主页推荐
     @GetMapping("/recommend")
     public BaseResponse<Page<User>> recommendUser(int pageSize, int pageNum,HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
-        //1、判断缓存是否存在
-        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        String key = RECOMMEND_KEY_PREFIX + loginUser.getId();
-        Page<User> userPage = (Page<User>) valueOperations.get(key);
-        //2、缓存存在返回
-        if (userPage != null){
-            return ResultUtils.success(userPage);
-        }
-        //3、缓存中不存在，查数据库
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.ne("id",loginUser.getId());
-        //分页
-        userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
-        //4、不存在，写入缓存
+        Page<User> userPage = null;
         try {
-            valueOperations.set(key,userPage,30, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            log.error("redis set error",e);
+            User loginUser = userService.getLoginUser(request);
+            //1、判断缓存是否存在
+            ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+            String key = RECOMMEND_KEY_PREFIX + loginUser.getId();
+            userPage = (Page<User>) valueOperations.get(key);
+            //2、缓存存在返回
+            if (userPage != null){
+                return ResultUtils.success(userPage);
+            }
+            //3、缓存中不存在，查数据库
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.ne("id",loginUser.getId());
+            //分页
+            userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+            //4、不存在，写入缓存
+            try {
+                valueOperations.set(key,userPage,30, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                log.error("redis set error",e);
+            }
+        }catch (BusinessException e){
+            //用户未登录，可以看这个
+            userPage = userService.page(new Page<>(pageNum, pageSize));
         }
         return ResultUtils.success(userPage);
     }
