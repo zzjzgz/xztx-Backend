@@ -44,4 +44,8 @@ public class TeamUpdateRequest implements Serializable {
      * 队伍密码
      */
     private String password;
+    /**
+     * 队伍头像
+     */
+    private String teamAvatarUrl;
 }
