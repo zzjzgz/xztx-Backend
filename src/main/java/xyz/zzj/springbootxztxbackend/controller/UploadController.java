@@ -20,20 +20,25 @@ import java.util.UUID;
  * @ClassName: UploadConller
  * @Author: zengz
  * @CreateTime: 2024/2/17 23:05
- * @Description: TODO 描述类的功能
+ * @Description: 完成文件上传
  * @Version: 1.0
  */
 @RestController
 //这个是线上用于跨域的，本地请注释其注解，//上线记得改服务器地址
 @CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
 @Slf4j
-public class UploadConller {
+public class UploadController {
 
     @Resource
     private AliOssUtil aliOssUtil;
 
-    @PostMapping("/team/upload")
-    public BaseResponse<String> uploadTeamAvatarUrl(@RequestPart("file") MultipartFile file){
+    /**
+     * 用于图片上传业务
+     * @param file
+     * @return
+     */
+    @PostMapping("/upload")
+    public BaseResponse<String> uploadAvatarUrl(@RequestPart("file") MultipartFile file){
         try {
 //            获取这个文件的原始的名字
             String originalFilename = file.getOriginalFilename();
