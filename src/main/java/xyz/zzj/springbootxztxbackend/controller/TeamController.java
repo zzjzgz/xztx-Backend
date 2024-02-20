@@ -19,12 +19,12 @@ import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
 import xyz.zzj.springbootxztxbackend.service.TeamService;
 import xyz.zzj.springbootxztxbackend.service.UserService;
 import xyz.zzj.springbootxztxbackend.service.UserTeamService;
-import xyz.zzj.springbootxztxbackend.utils.AliOssUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -136,6 +136,8 @@ public class TeamController {
             throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
         }
         List<TeamUserVO> teamList = teamService.listTeam(teamQueryDTO);
+        List<UserTeam> userTeamList = userTeamService.list();
+        Map<Long, List<UserTeam>> collect = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId, Collectors.toList()));
         //判断当前用户是否以加入队伍
         List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
@@ -144,12 +146,13 @@ public class TeamController {
             queryWrapper.eq("userId",loginUser.getId());
             queryWrapper.in("teamId",teamIdList);
             //已加入的队伍
-            List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+            userTeamList = userTeamService.list(queryWrapper);
             //已加入的队伍id集合
             Set<Long> hasJoinTeamId = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toSet());
             teamList.forEach(team ->{
                 boolean hasJoin = hasJoinTeamId.contains(team.getId());
                 team.setHasJoin(hasJoin);
+                team.setHasJoinNum((long) collect.get(team.getId()).size());
             });
         }catch (Exception e){}
         return ResultUtils.success(teamList);
