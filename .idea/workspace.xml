@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6abfc8ce-a9ee-4c15-ab5c-4835116e4e62" name="Changes" comment="" />
+    <list default="true" id="6abfc8ce-a9ee-4c15-ab5c-4835116e4e62" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -167,25 +169,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SpringbootXztxApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
-      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <module name="springboot-xztx-backend" />
-      <selectedOptions>
-        <option name="spring.boot.profiles" visible="false" />
-      </selectedOptions>
-      <option name="SPRING_BOOT_MAIN_CLASS" value="xyz.zzj.springbootxztxbackend.SpringbootXztxApplication" />
-      <option name="VM_PARAMETERS" value="-Dserver.port=8585" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="xyz.zzj.springbootxztxbackend.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="SpringbootXztxApplication2" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true">
       <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -213,17 +196,32 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="SpringbootXztxApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="springboot-xztx-backend" />
+      <selectedOptions>
+        <option name="spring.boot.profiles" visible="false" />
+      </selectedOptions>
+      <option name="SPRING_BOOT_MAIN_CLASS" value="xyz.zzj.springbootxztxbackend.SpringbootXztxApplication" />
+      <option name="VM_PARAMETERS" value="-Dserver.port=8585" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="xyz.zzj.springbootxztxbackend.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
-      <item itemvalue="JUnit.RedissonTest.test" />
       <item itemvalue="JUnit.RedisTest.test" />
+      <item itemvalue="JUnit.RedissonTest.test" />
       <item itemvalue="JUnit.UserServiceTest.searchTags" />
-      <item itemvalue="Spring Boot.SpringbootXztxApplication3" />
-      <item itemvalue="Spring Boot.SpringbootXztxApplication" />
-      <item itemvalue="Spring Boot.SpringbootXztxApplication2" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.SpringbootXztxApplication2" />
         <item itemvalue="JUnit.RedissonTest.test" />
         <item itemvalue="JUnit.UserServiceTest.searchTags" />
         <item itemvalue="JUnit.RedisTest.test" />

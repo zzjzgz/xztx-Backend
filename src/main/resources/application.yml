@@ -10,7 +10,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/xztx?serverTimezone=UTC
     username: root
-    password: zzj0806
+    password: xxxxx
   jackson:
     time-zone: GMT+8
   # redis 配置
@@ -20,7 +20,7 @@ spring:
     # 端口，默认为6379
     port: 6379
     # 密码，密码用双引号括起来，血与泪的排查（重置服务器的代价）
-    password: "0806"
+    password: "xxxxx"
     lettuce:
       pool:
         # 连接池中的最小空闲连接

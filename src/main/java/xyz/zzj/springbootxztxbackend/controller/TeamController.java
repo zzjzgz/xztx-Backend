@@ -16,16 +16,14 @@ import xyz.zzj.springbootxztxbackend.model.domain.UserTeam;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
 import xyz.zzj.springbootxztxbackend.model.domain.request.*;
 import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
+import xyz.zzj.springbootxztxbackend.model.domain.vo.UserVO;
 import xyz.zzj.springbootxztxbackend.service.TeamService;
 import xyz.zzj.springbootxztxbackend.service.UserService;
 import xyz.zzj.springbootxztxbackend.service.UserTeamService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -248,5 +246,22 @@ public class TeamController {
         teamQueryDTO.setListId(listId);
         List<TeamUserVO> list = teamService.listTeam(teamQueryDTO);
         return ResultUtils.success(list);
+    }
+
+    @PostMapping("/info")
+    public BaseResponse<List<UserVO>> matchUser(@RequestBody DeleteRequest deleteRequest){
+        if (deleteRequest == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        System.out.println(deleteRequest.getId());
+        List<User> userListFilter = userService.list();
+        //过滤敏感数据
+        UserVO[] userVOS = new UserVO[userListFilter.size()];
+        for (int i = 0; i < userListFilter.size(); i++) {
+            userVOS[i] = new UserVO();
+            BeanUtils.copyProperties(userListFilter.toArray()[i],userVOS[i]);
+        }
+        List<UserVO> userVOList = Arrays.asList(userVOS);
+        return ResultUtils.success(userVOList);
     }
 }

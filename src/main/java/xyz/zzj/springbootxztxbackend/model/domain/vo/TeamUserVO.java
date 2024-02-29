@@ -59,7 +59,7 @@ public class TeamUserVO implements Serializable {
     private Integer status;
 
     /**
-     * 队伍密码
+     * 队伍头像
      */
     private String teamAvatarUrl;
 
@@ -72,5 +72,9 @@ public class TeamUserVO implements Serializable {
      * 是否已加入
      */
     private boolean hasJoin;
+    /**
+     * 已加入队伍人数
+     */
+    private Long hasJoinNum;
 
 }
