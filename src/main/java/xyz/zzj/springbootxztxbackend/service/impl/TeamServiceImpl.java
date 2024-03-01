@@ -18,6 +18,7 @@ import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.UserTeam;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
 import xyz.zzj.springbootxztxbackend.model.domain.enumTeam.TeamStatesEnum;
+import xyz.zzj.springbootxztxbackend.model.domain.request.DeleteRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamQuitRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamUpdateRequest;
@@ -28,11 +29,9 @@ import xyz.zzj.springbootxztxbackend.service.UserService;
 import xyz.zzj.springbootxztxbackend.service.UserTeamService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static xyz.zzj.springbootxztxbackend.constant.UserConstant.JOIN_KEY_PREFIX;
 
@@ -438,6 +437,27 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         }
         //移除关系
         return userTeamService.remove(queryWrapper);
+    }
+
+    @Override
+    public List<UserVO> joinTeamUserInfo(DeleteRequest deleteRequest) {
+        long teamId = deleteRequest.getId();
+        if(teamId == 0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teamId",teamId);
+        List<UserTeam> list = userTeamService.list(queryWrapper);
+        //查询加入同一个队伍的id
+        List<Long> userIdList = list.stream().map(UserTeam::getUserId).collect(Collectors.toList());
+        List<User> userListFilter = userService.listByIds(userIdList);
+        //过滤敏感数据
+        UserVO[] userVOS = new UserVO[userListFilter.size()];
+        for (int i = 0; i < userListFilter.size(); i++) {
+            userVOS[i] = new UserVO();
+            BeanUtils.copyProperties(userListFilter.toArray()[i],userVOS[i]);
+        }
+        return Arrays.asList(userVOS);
     }
 
     /**

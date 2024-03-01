@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import xyz.zzj.springbootxztxbackend.model.domain.Team;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
+import xyz.zzj.springbootxztxbackend.model.domain.request.DeleteRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamQuitRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamUpdateRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.vo.TeamUserVO;
+import xyz.zzj.springbootxztxbackend.model.domain.vo.UserVO;
 
 import java.util.List;
 
@@ -33,4 +35,6 @@ public interface TeamService extends IService<Team> {
     boolean joinTeam(TeamJoinRequest teamJoinRequest,User loginUser);
 
     boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
+
+    List<UserVO> joinTeamUserInfo(DeleteRequest deleteRequest);
 }

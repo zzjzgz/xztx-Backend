@@ -76,4 +76,6 @@ public class UserVO implements Serializable {
      * 标签列表json
      */
     private String tags;
+
+
 }

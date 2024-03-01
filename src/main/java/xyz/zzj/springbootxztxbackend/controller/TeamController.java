@@ -249,19 +249,12 @@ public class TeamController {
     }
 
     @PostMapping("/info")
-    public BaseResponse<List<UserVO>> matchUser(@RequestBody DeleteRequest deleteRequest){
+    public BaseResponse<List<UserVO>> joinTeamUserInfo(@RequestBody DeleteRequest deleteRequest){
+        //判断参数是否为空
         if (deleteRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        System.out.println(deleteRequest.getId());
-        List<User> userListFilter = userService.list();
-        //过滤敏感数据
-        UserVO[] userVOS = new UserVO[userListFilter.size()];
-        for (int i = 0; i < userListFilter.size(); i++) {
-            userVOS[i] = new UserVO();
-            BeanUtils.copyProperties(userListFilter.toArray()[i],userVOS[i]);
-        }
-        List<UserVO> userVOList = Arrays.asList(userVOS);
+        List<UserVO> userVOList = teamService.joinTeamUserInfo(deleteRequest);
         return ResultUtils.success(userVOList);
     }
 }
