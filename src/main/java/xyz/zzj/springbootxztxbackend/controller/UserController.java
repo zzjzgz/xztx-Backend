@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
@@ -20,7 +21,9 @@ import xyz.zzj.springbootxztxbackend.service.UserService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -189,34 +192,106 @@ public class UserController {
 
     //主页推荐
     @GetMapping("/recommend")
-    public BaseResponse<Page<User>> recommendUser(int pageSize, int pageNum,HttpServletRequest request){
+    public BaseResponse<Page<UserVO>> recommendUser(int pageSize, int pageNum,HttpServletRequest request){
         Page<User> userPage = null;
+        Page<UserVO> userVOPage = null;
         try {
             User loginUser = userService.getLoginUser(request);
             //1、判断缓存是否存在
             ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
             String key = RECOMMEND_KEY_PREFIX + loginUser.getId();
-            userPage = (Page<User>) valueOperations.get(key);
+            List<UserVO> userVOList = (List<UserVO>)valueOperations.get(key);
             //2、缓存存在返回
-            if (userPage != null){
-                return ResultUtils.success(userPage);
+            if (!CollectionUtils.isEmpty(userVOList)){
+                //2.1、list转分页
+                userVOPage = getlistPage(pageSize, pageNum, userVOList);
+                return ResultUtils.success(userVOPage);
             }
             //3、缓存中不存在，查数据库
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.ne("id",loginUser.getId());
-            //分页
-            userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+            //3.1、分页
+            long count = userService.count();
+            //3.2、获取随机数据
+            List<User> list = new ArrayList<>();
+            if (count > pageSize){
+                Random rand = new Random();
+                int offset = Math.abs(rand.nextInt((int) (count - pageSize + 1)));
+                //3.3、大于10链接分页查询
+                queryWrapper.last("limit " + pageSize + " offset " + offset);
+            }
+            list = userService.list(queryWrapper);
+            //3.3、对数据进行脱敏
+            userVOList = getUserVOList(list);
+            //3.4、list转page
+            userVOPage = getlistPage(pageSize, pageNum, userVOList);
             //4、不存在，写入缓存
             try {
-                valueOperations.set(key,userPage,30, TimeUnit.SECONDS);
+                valueOperations.set(key,userVOList,30, TimeUnit.SECONDS);
             } catch (Exception e) {
                 log.error("redis set error",e);
             }
         }catch (BusinessException e){
             //用户未登录，可以看这个
             userPage = userService.page(new Page<>(pageNum, pageSize));
+            //对page数据进行脱敏
+            userVOPage = getUserVOPage(pageSize, pageNum, userPage);
+            return ResultUtils.success(userVOPage);
         }
-        return ResultUtils.success(userPage);
+        return ResultUtils.success(userVOPage);
+    }
+
+    /**
+     * 将list转换为page
+     * @param pageSize
+     * @param pageNum
+     * @param userList
+     * @return
+     */
+    public static Page<UserVO> getlistPage(int pageSize, int pageNum, List<UserVO> userList) {
+        Page<UserVO> userPage;
+        userPage = new Page<>(pageNum, pageSize);
+        // 当前页第一条数据在List中的位置
+        int start = (int)((userPage.getCurrent() - 1) * userPage.getSize());
+        // 当前页最后一条数据在List中的位置
+        int end = (int)((start + userPage.getSize()) > userList.size() ? userList.size() : (userPage.getSize() * userPage.getCurrent()));
+        userPage.setRecords(new ArrayList<>());
+        userPage.setTotal(userList.size());
+        if (userPage.getSize()*(userPage.getCurrent()-1) <= userPage.getTotal()) {
+            // 分隔列表 当前页存在数据时 设置
+            userPage.setRecords(userList.subList(start, end));
+        }
+        return userPage;
+    }
+
+
+    /**
+     * 对List《user》脱敏
+     * @param userPage
+     * @return
+     */
+    public static List<UserVO> getUserVOList(List<User> userPage) {
+        List<UserVO> userVOList = new ArrayList<>();
+        for (User user : userPage){
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(user,userVO);
+            userVOList.add(userVO);
+        }
+        return userVOList;
+    }
+
+    /**
+     * 对page分页数据进行脱敏
+     * @param pageSize
+     * @param pageNum
+     * @param userPage
+     * @return
+     */
+    private static Page<UserVO> getUserVOPage(int pageSize, int pageNum, Page<User> userPage) {
+        Page<UserVO> userVOPage;
+        List<UserVO> userVOList = getUserVOList(userPage.getRecords());
+        userVOPage = getlistPage(pageSize, pageNum, userVOList);
+        return userVOPage;
     }
 
     @GetMapping("/match")
