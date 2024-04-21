@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static xyz.zzj.springbootxztxbackend.constant.UserConstant.PRECACHE_KEY_PREFIX;
 import static xyz.zzj.springbootxztxbackend.constant.UserConstant.RECOMMEND_KEY_PREFIX;
-import static xyz.zzj.springbootxztxbackend.controller.UserController.getUserVOList;
+import static xyz.zzj.springbootxztxbackend.utils.UserListToUserVo.getUserVOList;
 
 @EnableScheduling
 @Slf4j

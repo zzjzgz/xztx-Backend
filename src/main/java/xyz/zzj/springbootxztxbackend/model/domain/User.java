@@ -7,13 +7,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
+ *
  * @TableName user
  */
 @TableName(value ="user")
 @Data
 public class User implements Serializable {
-
     /**
      * id
      */
@@ -24,11 +23,6 @@ public class User implements Serializable {
      * 个人简介
      */
     private String userProfile;
-
-    /**
-     * 昵称
-     */
-    private String username;
 
     /**
      * 头像
@@ -51,9 +45,9 @@ public class User implements Serializable {
     private String userPassword;
 
     /**
-     * 电话
+     * 昵称
      */
-    private String phone;
+    private String username;
 
     /**
      * 邮箱
@@ -87,10 +81,25 @@ public class User implements Serializable {
     private Integer userRole;
 
     /**
-     * 标签列表json
+     * 标签列表 json
      */
     private String tags;
 
-//    @TableField(exist = false)
+    /**
+     * 电话
+     */
+    private String phone;
+
+    /**
+     * 纬度
+     */
+    private Double latitude;
+
+    /**
+     * 经度
+     */
+    private Double longitude;
+
+    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

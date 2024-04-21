@@ -4,14 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import xyz.zzj.springbootxztxbackend.connon.BaseResponse;
 import xyz.zzj.springbootxztxbackend.connon.ErrorCode;
 import xyz.zzj.springbootxztxbackend.connon.ResultUtils;
+import xyz.zzj.springbootxztxbackend.constant.UserConstant;
 import xyz.zzj.springbootxztxbackend.exception.BusinessException;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.request.UserLoginRequest;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static xyz.zzj.springbootxztxbackend.constant.UserConstant.RECOMMEND_KEY_PREFIX;
 import static xyz.zzj.springbootxztxbackend.constant.UserConstant.USER_LOGIN_STATE;
+import static xyz.zzj.springbootxztxbackend.utils.UserListToUserVo.getUserVOList;
 
 /**
  * @BelongsProject: springboot-user-center
@@ -42,7 +46,7 @@ import static xyz.zzj.springbootxztxbackend.constant.UserConstant.USER_LOGIN_STA
 @RestController
 @RequestMapping("/user")
 //这个是线上用于跨域的，本地请注释其注解，上线记得改服务器地址
-@CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
+//@CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
 @Slf4j
 public class UserController {
 
@@ -50,6 +54,9 @@ public class UserController {
     private UserService userService;
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
 
     //注册
@@ -223,6 +230,19 @@ public class UserController {
             list = userService.list(queryWrapper);
             //3.3、对数据进行脱敏
             userVOList = getUserVOList(list);
+            //计算距离必返回前端
+            String keyGeo = UserConstant.USER_GEO_KEY;
+            //计算 userId为 1 的用户和其他用户的距离
+            for (User user : list){
+                Distance distance = stringRedisTemplate.opsForGeo()
+                        .distance(keyGeo,String.valueOf(loginUser.getId()),String.valueOf(user.getId()), RedisGeoCommands.DistanceUnit.KILOMETERS);
+                userVOList.stream().map(userVO -> {
+                    if (userVO.getId().equals(user.getId())){
+                        userVO.setDistance(distance.getValue());
+                    }
+                    return userVO;
+                }).collect(Collectors.toList());
+            }
             //3.4、list转page
             userVOPage = getlistPage(pageSize, pageNum, userVOList);
             //4、不存在，写入缓存
@@ -265,20 +285,7 @@ public class UserController {
     }
 
 
-    /**
-     * 对List《user》脱敏
-     * @param userPage
-     * @return
-     */
-    public static List<UserVO> getUserVOList(List<User> userPage) {
-        List<UserVO> userVOList = new ArrayList<>();
-        for (User user : userPage){
-            UserVO userVO = new UserVO();
-            BeanUtils.copyProperties(user,userVO);
-            userVOList.add(userVO);
-        }
-        return userVOList;
-    }
+
 
     /**
      * 对page分页数据进行脱敏
@@ -294,6 +301,7 @@ public class UserController {
         return userVOPage;
     }
 
+    //匹配
     @GetMapping("/match")
     public BaseResponse<List<UserVO>> matchUser(long num,HttpServletRequest request){
         if (num <= 0 || num>=20){
@@ -310,5 +318,23 @@ public class UserController {
         return ResultUtils.success(userVOList);
     }
 
+    /**
+     * 搜索附近用户
+     * @param request
+     * @return
+     */
+    @GetMapping("/nearby")
+    public BaseResponse<List<UserVO>> nearbyUser(HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null){
+            throw new BusinessException(ErrorCode.LOGIN_ERROR);
+        }
+        Long userId = loginUser.getId();
+        List<UserVO> userVOList = userService.nearbyUser(userId);
+        if (CollectionUtils.isEmpty(userVOList)){
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        return ResultUtils.success(userVOList);
+    }
 }
 

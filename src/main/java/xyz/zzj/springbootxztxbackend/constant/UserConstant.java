@@ -46,5 +46,10 @@ public interface UserConstant {
      */
    String S_ALT = "zzj";
 
+    /**
+     * 获取位置key
+     */
+    String USER_GEO_KEY = "xztx:user:geo:";
+
 }
 

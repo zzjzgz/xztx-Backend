@@ -1,7 +1,6 @@
 package xyz.zzj.springbootxztxbackend.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +24,7 @@ import java.util.UUID;
  */
 @RestController
 //这个是线上用于跨域的，本地请注释其注解，//上线记得改服务器地址
-@CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
+//@CrossOrigin(origins = {"http://localhost:5173/"},allowCredentials = "true")
 @Slf4j
 public class UploadController {
 

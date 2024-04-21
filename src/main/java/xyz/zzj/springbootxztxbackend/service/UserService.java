@@ -98,4 +98,6 @@ public interface UserService extends IService<User> {
      * @return
      */
     List<UserVO> matchUsers(long num, User loginUser);
+
+    List<UserVO> nearbyUser(Long userId);
 }

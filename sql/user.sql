@@ -38,11 +38,9 @@ CREATE TABLE `user`  (
   `tags` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标签列表 json',
   `phone` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '电话',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 0 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1, '热爱编程，头发还健在，哈哈哈哈哈，平时听听音乐', 'https://zzj-img.oss-cn-hangzhou.aliyuncs.com/2024/02.jpg', 0, 'zzjzzj', '2970a1691c8ef07f40ddbe6f7b18662f', 'zzjzzj', '123', 0, '2024-01-29 20:48:23', '2024-01-29 20:48:23', 0, 1, '[\"java\",\"秋招\"]', '123');
-INSERT INTO `user` VALUES (2, '热爱编程，头发还健在，哈哈哈哈哈，平时听听音乐', 'https://zzj-img.oss-cn-hangzhou.aliyuncs.com/2024/hdjpg.jpg', 0, 'zzjny', '2970a1691c8ef07f40ddbe6f7b18662f', 'zzjny', '123', 0, '2024-01-29 20:48:23', '2024-01-29 20:48:23', 0, 1, '[\"c++\",\"春招\"]', '123');
 SET FOREIGN_KEY_CHECKS = 1;

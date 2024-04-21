@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.zzj.springbootxztxbackend.mapper.UserFriendsMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.zzj.springbootxztxbackend.model.domain.UserFriends">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="friendId" column="friendId" jdbcType="BIGINT"/>
+            <result property="relationshipStatus" column="relationshipStatus" jdbcType="TINYINT"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <delete id="deleteFriendship">
+        UPDATE user_friends
+        set isDelete = 1
+        WHERE (userid = #{userId})
+           OR (friendId = #{userId})
+    </delete>
+
+
+
+    <sql id="Base_Column_List">
+        id,userId,friendId,
+        relationshipStatus,isDelete,createTime,
+        updateTime
+    </sql>
+</mapper>

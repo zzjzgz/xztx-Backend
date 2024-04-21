@@ -77,5 +77,8 @@ public class UserVO implements Serializable {
      */
     private String tags;
 
-
+    /**
+     * 用户距离
+     */
+    private Double distance;
 }

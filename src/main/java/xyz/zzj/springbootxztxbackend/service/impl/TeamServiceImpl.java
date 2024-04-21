@@ -17,7 +17,7 @@ import xyz.zzj.springbootxztxbackend.model.domain.Team;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.UserTeam;
 import xyz.zzj.springbootxztxbackend.model.domain.dto.TeamQueryDTO;
-import xyz.zzj.springbootxztxbackend.model.domain.enumTeam.TeamStatesEnum;
+import xyz.zzj.springbootxztxbackend.model.domain.xztxEnum.TeamStatesEnum;
 import xyz.zzj.springbootxztxbackend.model.domain.request.DeleteRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamJoinRequest;
 import xyz.zzj.springbootxztxbackend.model.domain.request.TeamQuitRequest;

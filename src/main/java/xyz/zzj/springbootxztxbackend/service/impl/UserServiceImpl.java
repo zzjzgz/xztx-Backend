@@ -1,5 +1,6 @@
 package xyz.zzj.springbootxztxbackend.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
@@ -8,16 +9,22 @@ import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.*;
+import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import xyz.zzj.springbootxztxbackend.connon.ErrorCode;
+import xyz.zzj.springbootxztxbackend.constant.UserConstant;
 import xyz.zzj.springbootxztxbackend.exception.BusinessException;
 import xyz.zzj.springbootxztxbackend.mapper.UserMapper;
 import xyz.zzj.springbootxztxbackend.model.domain.User;
 import xyz.zzj.springbootxztxbackend.model.domain.vo.UserVO;
 import xyz.zzj.springbootxztxbackend.service.UserService;
 import xyz.zzj.springbootxztxbackend.utils.AlgorithmUtils;
+import xyz.zzj.springbootxztxbackend.utils.UserListToUserVo;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +47,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     UserMapper userMapper;
 
-
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
 
 
@@ -322,7 +330,62 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         for (Long userId : userIdList) {
             finalUserList.add(userIdUserListMap.get(userId).get(0));
         }
+        //计算距离必返回前端
+        //计算 userId为 1 的用户和其他用户的距离
+        for (User user : userListFilter){
+            Distance distance = stringRedisTemplate.opsForGeo()
+                    .distance(UserConstant.USER_GEO_KEY,String.valueOf(loginUser.getId()),String.valueOf(user.getId()), RedisGeoCommands.DistanceUnit.KILOMETERS);
+            finalUserList.stream().map(userVO -> {
+                if (userVO.getId().equals(user.getId())){
+                    userVO.setDistance(distance.getValue());
+                }
+                return userVO;
+            }).collect(Collectors.toList());
+        }
         return finalUserList;
+    }
+
+    @Override
+    public List<UserVO> nearbyUser(Long userId) {
+        User user = userMapper.selectById(userId);
+        Distance geoRedis = new Distance(100, RedisGeoCommands.DistanceUnit.KILOMETERS);
+        //以用户为中心，半径为180km搜索附近的用户
+        Circle circle = new Circle(new Point(user.getLongitude(),user.getLatitude()),geoRedis);
+        //查询后返回经纬度和id，并按距离从低到高排序
+        RedisGeoCommands.GeoRadiusCommandArgs geoRadiusCommandArgs = RedisGeoCommands.GeoRadiusCommandArgs
+                .newGeoRadiusArgs().includeCoordinates().sort(Sort.Direction.ASC);
+        //查询200km范围内的用户
+        List<Long> listUserId = new ArrayList<>();
+        List<User> userList;
+        GeoResults<RedisGeoCommands.GeoLocation<String>> radius = stringRedisTemplate.opsForGeo()
+                .radius(UserConstant.USER_GEO_KEY, circle, geoRadiusCommandArgs);
+        for (GeoResult<RedisGeoCommands.GeoLocation<String>> result : radius) {
+            if (!result.getContent().getName().equals(String.valueOf(userId))){
+                long l = Long.parseLong(result.getContent().getName());
+                listUserId.add(l);
+            }
+        }
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(User::getId,listUserId);
+        userList = userMapper.selectList(lambdaQueryWrapper);
+        if (CollectionUtils.isEmpty(userList)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<UserVO> userVOList = UserListToUserVo.getUserVOList(userList);
+        //计算距离必返回前端
+        //计算 userId为 1 的用户和其他用户的距离
+        for (User user1 : userList){
+            Distance distance = stringRedisTemplate.opsForGeo()
+                    .distance(UserConstant.USER_GEO_KEY,String.valueOf(userId),String.valueOf(user1.getId()), RedisGeoCommands.DistanceUnit.KILOMETERS);
+            userVOList.stream().map(userVO -> {
+                if (userVO.getId().equals(user1.getId())){
+                    userVO.setDistance(distance.getValue());
+                }
+                return userVO;
+            }).collect(Collectors.toList());
+        }
+        userVOList.sort(Comparator.comparing(UserVO::getDistance));
+        return userVOList;
     }
 
 }
